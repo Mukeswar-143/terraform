@@ -1,5 +1,5 @@
 provider "aws" {
-  region = "eu-north-1" # change to your AWS region
+  region = "eu-north-1"
 }
 
 # Variables for reuse
@@ -15,7 +15,7 @@ variable "public_subnets" {
 }
 
 variable "key_name" {
-  default = "devops" # <-- Replace with your AWS key pair
+  default = "devops" 
 }
 
 # Security Group for EC2
