@@ -229,9 +229,11 @@ terraform/
 - **Purpose**: Feature development and testing
 
 **Key URLs:**
-- API Gateway: `https://metiss-ai-gateway-6m7odqj.wl.gateway.dev`
-- Vista (Frontend): `https://dev-vista.metiss.ai`
+- API Gateway: `https://[API-GATEWAY-URL]` (see tfvars)
+- Vista (Frontend): `https://[FRONTEND-URL]` (see tfvars)
 - Dashboard: Dev Portal instance
+
+⚠️ **Note**: Do not expose actual URLs or domains in documentation. Keep service endpoints in `terraform.tfvars`
 
 ### 2. **Staging (Stage)**
 - **Purpose**: Pre-production testing
@@ -309,29 +311,35 @@ terraform/
 ### PostgreSQL Instances
 
 #### **Main Database**
-- **Instance**: `metiss-dev:us-west1:metiss`
-- **Database Name**: `metiss`
+- **Instance**: `[PROJECT_ID]:us-west1:[INSTANCE_NAME]` (see tfvars)
+- **Database Name**: `[DB_NAME]` (see tfvars)
 - **Region**: `us-west1`
 - **Tier**: `db-custom-8-32768`
 - **Version**: PostgreSQL 17
 - **Connection String**: 
   ```
-  postgresql://metiss:Metiss@2025@43.225.21.76:5432/metiss
+  postgresql://[DB_USER]:[DB_PASSWORD]@[DB_IP]:5432/[DB_NAME]
   ```
 - **Cloud SQL Connection**: 
   ```
-  metiss-dev:us-west1:metiss
+  [PROJECT_ID]:us-west1:[INSTANCE_NAME]
   ```
 
+⚠️ **Security Warning**: Never commit actual database credentials, IPs, or passwords to version control. Store in `terraform.tfvars` (git-ignored) or use secret management.
+
 #### **AMS Database** (Asset Management System)
-- **Instance**: `metiss-dev:us-west1:metiss-ams-shared`
-- **Database Name**: `metiss` (separate instance)
+- **Instance**: `[PROJECT_ID]:us-west1:[AMS_INSTANCE_NAME]` (see tfvars)
+- **Database Name**: `[AMS_DB_NAME]` (see tfvars)
 - **Shared Access**: Used by AMS-related services
 
+⚠️ **Security Warning**: Keep actual instance names and databases in terraform.tfvars only
+
 #### **Read-Only Replicas**
-- **Dev Main Replica**: `postgresql://metiss_ai_reader:...@43.225.21.76:5432/metiss`
-- **Dev AMS Replica**: `postgresql://metiss_ai_reader:...@43.225.21.76:5432/metiss`
+- **Dev Main Replica**: `postgresql://[READONLY_USER]:[PASSWORD]@[REPLICA_IP]:5432/[DB_NAME]`
+- **Dev AMS Replica**: `postgresql://[READONLY_USER]:[PASSWORD]@[REPLICA_IP]:5432/[DB_NAME]`
 - **Purpose**: Analytics and reporting without impacting main database
+
+⚠️ **Security Warning**: Store all connection strings in `terraform.tfvars` (git-ignored) and never expose in documentation or logs
 
 ### Database Connection Methods
 
@@ -443,27 +451,29 @@ Example:
 
 #### **Development (`dev.conf`)**
 ```
-PROJECT_ID="metiss-dev"
-ARTIFACT_REGISTRY="gcr.io/metiss-dev"
+PROJECT_ID="[YOUR_DEV_PROJECT_ID]"
+ARTIFACT_REGISTRY="[YOUR_DEV_REGISTRY]"
 REGION="us-west1"
 DEFAULT_BRANCH="develop"
 ```
 
 #### **Staging (`stage.conf`)**
 ```
-PROJECT_ID="metiss-stage"
-ARTIFACT_REGISTRY="gcr.io/metiss-stage"
+PROJECT_ID="[YOUR_STAGE_PROJECT_ID]"
+ARTIFACT_REGISTRY="[YOUR_STAGE_REGISTRY]"
 REGION="us-west1"
 DEFAULT_BRANCH="staging"
 ```
 
 #### **Production (`prod.conf`)**
 ```
-PROJECT_ID="metiss-prod"
-ARTIFACT_REGISTRY="gcr.io/metiss-prod"
+PROJECT_ID="[YOUR_PROD_PROJECT_ID]"
+ARTIFACT_REGISTRY="[YOUR_PROD_REGISTRY]"
 REGION="us-west1"
 DEFAULT_BRANCH="main"
 ```
+
+⚠️ **Note**: Store actual environment-specific values in config files that are git-ignored (`.gitignore`)
 
 ### Service Configuration
 
@@ -482,45 +492,58 @@ Defines services in monorepo structure
 
 ### Critical Configuration Variables
 
-#### **Authentication & API Keys**
+⚠️ **SECURITY CRITICAL**: The following variables contain sensitive information and must NEVER be committed to version control or exposed in documentation:
+
+#### **Authentication & API Keys** (KEEP SECRET)
 ```
-GOOGLE_API_KEY          # For Maps, Solar API
-GENAI_API_KEY           # For Gemini/Claude
-GCP_API_KEY             # General GCP services
+GOOGLE_API_KEY          # For Maps, Solar API - KEEP SECRET
+GENAI_API_KEY           # For Gemini/Claude - KEEP SECRET
+GCP_API_KEY             # General GCP services - KEEP SECRET
+GEMINI_API_KEY          # Gemini API key - KEEP SECRET
 ```
 
-#### **Firebase Configuration**
+#### **Firebase Configuration** (KEEP SECRET)
 ```
-FIREBASE_PROJECT_ID
-FIREBASE_PRIVATE_KEY_ID
-FIREBASE_PRIVATE_KEY
-FIREBASE_CLIENT_EMAIL
-... (other Firebase credentials)
+FIREBASE_PROJECT_ID     # Store in tfvars only
+FIREBASE_PRIVATE_KEY_ID # EXTREMELY SENSITIVE - KEEP SECRET
+FIREBASE_PRIVATE_KEY    # EXTREMELY SENSITIVE - KEEP SECRET
+FIREBASE_CLIENT_EMAIL   # Store in tfvars only
+FIREBASE_CLIENT_X509_CERT_URL  # Store in tfvars only
 ```
 
-#### **Database Credentials**
+#### **Database Credentials** (KEEP SECRET)
 ```
 DB_USER                 # PostgreSQL username
-DB_PSWD                 # PostgreSQL password
+DB_PSWD                 # PostgreSQL password - KEEP SECRET
 DB_NAME                 # Database name
 INSTANCE_CONNECTION_NAME # Cloud SQL connection
+DATABASE_URL            # Full connection string - KEEP SECRET
+DATABASE_URL_READONLY   # Read-only DB connection - KEEP SECRET
 ```
 
-#### **Email Configuration**
+#### **Email Configuration** (KEEP SECRET)
 ```
-SMTP_USER               # SMTP login
-SMTP_PASS               # SMTP password
-SENDER_EMAIL            # From address
-SENDER_FROM             # Display name
-SENDER_CC, SENDER_BCC   # Additional recipients
+SMTP_USER               # SMTP login - KEEP SECRET
+SMTP_PASS               # SMTP password - EXTREMELY SENSITIVE
+SENDER_EMAIL            # From address (can be documented)
+SENDER_FROM             # Display name (can be documented)
 ```
 
-#### **External Service URLs**
+#### **External Service URLs** (INTERNAL ONLY)
 ```
-USER_SERVICE_URL        # User microservice endpoint
-ORG_SERVICE_URL         # Organization service endpoint
-SOLAR_BASE_URL          # Google Solar API endpoint
+USER_SERVICE_URL        # Internal service endpoint (store in tfvars)
+ORG_SERVICE_URL         # Internal service endpoint (store in tfvars)
+SOLAR_BASE_URL          # Google Solar API endpoint (store in tfvars)
+GEMINI_API_KEY          # API key - KEEP SECRET
 ```
+
+**Storage Location**: All secrets must be in `terraform/[ENV]/terraform.tfvars` with proper `.gitignore` rules
+**Never**:
+- Commit secrets to Git
+- Share in Slack/Email
+- Include in logs
+- Expose in documentation
+- Display in error messages
 
 ---
 
@@ -556,6 +579,12 @@ SOLAR_BASE_URL          # Google Solar API endpoint
 ---
 
 ## Troubleshooting Guide
+
+⚠️ **Security Reminder**: When troubleshooting and sharing logs/outputs, ensure you:
+- Remove all API keys and credentials
+- Replace URLs with placeholders
+- Never share terraform.tfvars or .env files
+- Sanitize database connection strings in logs
 
 ### Common Issues & Solutions
 

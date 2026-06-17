@@ -69,27 +69,54 @@ This folder contains comprehensive Knowledge Transfer (KT) documentation for the
 
 ---
 
-## 🎯 Quick Navigation by Role
+### 4. **SECURITY_GUIDELINES_FOR_KT.md** 🔒 REQUIRED READING
+**Purpose**: Critical security practices and incident response  
+**Best for**: Everyone participating in the KT session  
+**Contents**:
+- ✅ What MUST NEVER be exposed
+- ✅ What CAN safely be shared
+- ✅ Pre-KT security checklist
+- ✅ Documentation guidelines with examples
+- ✅ .gitignore essentials
+- ✅ Team training points by role
+- ✅ Incident response procedures
+- ✅ Best practices (DO's and DON'Ts)
+- ✅ KT session security reminders
+- ✅ Useful security commands
+
+**Time to Read**: 15-20 minutes  
+**For Roles**: EVERYONE - Mandatory for all team members
+
+---
+
+## 📋 Documentation Files (Updated)
+
+### For **EVERYONE** (Mandatory First Reading):
+- ⚠️ **SECURITY_GUIDELINES_FOR_KT.md** - 15 min - REQUIRED BEFORE KT
 
 ### For **Architects/Tech Leads**:
-1. Start: METISS_ARCHITECTURE_DIAGRAMS.md (10 min)
-2. Read: METISS_INFRASTRUCTURE_KT.md (30 min)
-3. Reference: QUICK_START_DEPLOYMENT_GUIDE.md (as needed)
+1. SECURITY_GUIDELINES_FOR_KT.md (15 min) - **REQUIRED**
+2. METISS_ARCHITECTURE_DIAGRAMS.md (10 min)
+3. METISS_INFRASTRUCTURE_KT.md (30 min)
+4. Reference: QUICK_START_DEPLOYMENT_GUIDE.md (as needed)
 
 ### For **DevOps Engineers/SREs**:
-1. Start: QUICK_START_DEPLOYMENT_GUIDE.md (30 min)
-2. Deep Dive: METISS_INFRASTRUCTURE_KT.md (45 min)
-3. Troubleshooting: METISS_INFRASTRUCTURE_KT.md → Troubleshooting Guide
+1. SECURITY_GUIDELINES_FOR_KT.md (15 min) - **REQUIRED**
+2. QUICK_START_DEPLOYMENT_GUIDE.md (30 min)
+3. METISS_INFRASTRUCTURE_KT.md (45 min)
+4. Troubleshooting: METISS_INFRASTRUCTURE_KT.md → Troubleshooting Guide
 
 ### For **New Developers**:
-1. Start: METISS_ARCHITECTURE_DIAGRAMS.md (15 min)
-2. Read: METISS_INFRASTRUCTURE_KT.md - Services Overview section
-3. Deploy Exercise: QUICK_START_DEPLOYMENT_GUIDE.md - Deploy a New Service
+1. SECURITY_GUIDELINES_FOR_KT.md (15 min) - **REQUIRED**
+2. METISS_ARCHITECTURE_DIAGRAMS.md (15 min)
+3. METISS_INFRASTRUCTURE_KT.md - Services Overview section
+4. Deploy Exercise: QUICK_START_DEPLOYMENT_GUIDE.md
 
 ### For **Operations/Support Team**:
-1. Start: QUICK_START_DEPLOYMENT_GUIDE.md - Monitoring Deployments
-2. Reference: METISS_INFRASTRUCTURE_KT.md - Troubleshooting Guide
-3. Quick Commands: QUICK_START_DEPLOYMENT_GUIDE.md - Essential Commands Reference
+1. SECURITY_GUIDELINES_FOR_KT.md (15 min) - **REQUIRED**
+2. QUICK_START_DEPLOYMENT_GUIDE.md - Monitoring Deployments
+3. METISS_INFRASTRUCTURE_KT.md - Troubleshooting Guide
+4. Quick Commands: QUICK_START_DEPLOYMENT_GUIDE.md
 
 ---
 
@@ -166,7 +193,13 @@ This folder contains comprehensive Knowledge Transfer (KT) documentation for the
 
 ## 🛠️ Getting Started - 3 Simple Steps
 
-### Step 1: Understand the System (30 min)
+### Step 1: Security First (15 min)
+```bash
+# READ FIRST - Everyone must understand security requirements
+cat SECURITY_GUIDELINES_FOR_KT.md
+```
+
+### Step 2: Understand the System (30 min)
 ```bash
 # Read the main KT document
 cat METISS_INFRASTRUCTURE_KT.md
@@ -175,13 +208,13 @@ cat METISS_INFRASTRUCTURE_KT.md
 cat METISS_ARCHITECTURE_DIAGRAMS.md
 ```
 
-### Step 2: Learn Deployment (20 min)
+### Step 3: Learn Deployment (20 min)
 ```bash
 # Read the quick start guide
 cat QUICK_START_DEPLOYMENT_GUIDE.md
 ```
 
-### Step 3: Practice (Hands-on)
+### Step 4: Practice (Hands-on)
 ```bash
 # Follow "Quick Start - First Time Setup" in QUICK_START_DEPLOYMENT_GUIDE.md
 # Or follow "Deploy a New Service" procedure
@@ -216,21 +249,39 @@ cat QUICK_START_DEPLOYMENT_GUIDE.md
 
 ---
 
-## 🔐 Important Security Notes
+## 🔐 Critical Security Notes
 
-### Sensitive Information
-⚠️ **The following files/folders contain secrets and must be protected**:
-- `terraform/*/terraform.tfvars` - Contains API keys and credentials
-- `.env` files - Local environment variables
+### NEVER Expose in Documentation/Logs/VCS:
+⚠️ **EXTREMELY SENSITIVE - NEVER commit or share**:
+- `terraform.tfvars` files - Contains all secrets
 - `key-*.json` - GCP service account keys
+- `.env` files - Environment variables
+- API keys (Google, Gemini, Solar API, etc.)
+- Database passwords and connection strings
+- Firebase private keys
+- SMTP credentials
+- Private encryption keys
+- Service account emails (if internal)
+- Internal service URLs (if sensitive)
 
 ### Best Practices
-1. Never commit secrets to Git
-2. Use `.gitignore` for sensitive files
-3. Rotate credentials regularly
-4. Use service accounts for automation
-5. Enable audit logging
-6. Restrict IAM permissions (principle of least privilege)
+1. **Gitignore**: Add all sensitive files to `.gitignore`:
+   ```
+   terraform.tfvars
+   *.tfvars
+   key-*.json
+   .env
+   .env.local
+   ```
+2. **Documentation**: Use placeholders like `[API_KEY]`, `[DB_PASSWORD]`, `[PROJECT_ID]`
+3. **Secret Management**: Use GCP Secret Manager or similar for production
+4. **Rotation**: Rotate credentials every 90 days minimum
+5. **Service Accounts**: Use for automation, not personal credentials
+6. **Audit Logging**: Enable and monitor access logs
+7. **Least Privilege**: Restrict IAM permissions to minimum required
+8. **Code Review**: Never approve PRs that expose secrets
+9. **Scanning**: Use tools to detect accidentally committed secrets
+10. **Training**: Ensure team understands secret management practices
 
 ---
 
@@ -251,7 +302,7 @@ cat QUICK_START_DEPLOYMENT_GUIDE.md
 ```bash
 # Authentication
 gcloud auth login
-gcloud config set project metiss-dev
+gcloud config set project [YOUR_PROJECT_ID]
 
 # Planning & Deployment
 cd terraform/Dev
@@ -259,7 +310,7 @@ terraform plan
 terraform apply
 
 # Monitoring
-gcloud run services describe metiss-helio --region=us-west1
+gcloud run services describe [SERVICE_NAME] --region=us-west1
 gcloud logging read "resource.type=cloud_run_revision" --limit=50
 
 # Troubleshooting
@@ -272,25 +323,28 @@ gcloud run services list --region=us-west1
 ## 📈 Learning Path
 
 ### Beginner (New to GCP/Terraform)
-1. ⏱️ 10 min: Read Overview in Infrastructure KT
-2. ⏱️ 15 min: View Architecture Diagrams
-3. ⏱️ 10 min: Read Quick Start Prerequisites
-4. ⏱️ 10 min: Try GCP Project Setup
-5. **Total: 45 minutes**
+1. ⏱️ 15 min: Read SECURITY_GUIDELINES_FOR_KT.md (REQUIRED)
+2. ⏱️ 10 min: Read Overview in Infrastructure KT
+3. ⏱️ 15 min: View Architecture Diagrams
+4. ⏱️ 10 min: Read Quick Start Prerequisites
+5. ⏱️ 10 min: Try GCP Project Setup
+6. **Total: 60 minutes**
 
 ### Intermediate (Some GCP experience)
-1. ⏱️ 30 min: Read Infrastructure KT (skip basics)
-2. ⏱️ 20 min: Review Architecture Diagrams
-3. ⏱️ 25 min: Read Quick Start Guide
-4. ⏱️ 15 min: Practice deployment steps
-5. **Total: 90 minutes**
+1. ⏱️ 15 min: Read SECURITY_GUIDELINES_FOR_KT.md (REQUIRED)
+2. ⏱️ 30 min: Read Infrastructure KT (skip basics)
+3. ⏱️ 20 min: Review Architecture Diagrams
+4. ⏱️ 25 min: Read Quick Start Guide
+5. ⏱️ 15 min: Practice deployment steps
+6. **Total: 105 minutes**
 
 ### Advanced (Senior engineer/architect)
-1. ⏱️ 45 min: Read complete Infrastructure KT
-2. ⏱️ 20 min: Review Architecture Diagrams & Terraform code structure
-3. ⏱️ 20 min: Review Troubleshooting Guide
-4. ⏱️ 15 min: Review deployment procedures for reference
-5. **Total: 100 minutes**
+1. ⏱️ 15 min: Read SECURITY_GUIDELINES_FOR_KT.md (REQUIRED)
+2. ⏱️ 45 min: Read complete Infrastructure KT
+3. ⏱️ 20 min: Review Architecture Diagrams & Terraform code structure
+4. ⏱️ 20 min: Review Troubleshooting Guide
+5. ⏱️ 15 min: Review deployment procedures for reference
+6. **Total: 115 minutes**
 
 ---
 
@@ -329,8 +383,12 @@ After completing the KT, you should be able to:
 
 ## 📅 Recommended Study Schedule (Full Day KT Session)
 
+### Pre-Session (Before KT)
+- **All participants**: Read SECURITY_GUIDELINES_FOR_KT.md (15 min) - MANDATORY
+
 ### Morning (9:00 AM - 12:30 PM)
-- **9:00-9:30**: Welcome & Agenda (Presenter: 30 min)
+- **9:00-9:15**: Security Briefing & Q&A (Presenter: 15 min)
+- **9:15-9:30**: Welcome & Agenda (Presenter: 15 min)
 - **9:30-10:15**: Infrastructure Overview (Read: 30 min, Q&A: 15 min)
 - **10:15-10:30**: Break (15 min)
 - **10:30-11:10**: Architecture Walkthrough using Diagrams (Presenter: 40 min)
@@ -344,7 +402,7 @@ After completing the KT, you should be able to:
 - **2:45-3:45**: Hands-on Exercise 1: Deploy Test Service (Hands-on: 60 min)
 - **3:45-4:15**: Troubleshooting Guide Walkthrough (Presentation: 30 min)
 - **4:15-4:45**: Hands-on Exercise 2: Fix a Broken Deployment (Hands-on: 30 min)
-- **4:45-5:00**: Q&A, Wrap-up, Resources (15 min)
+- **4:45-5:00**: Security Recap & Q&A, Wrap-up, Resources (15 min)
 
 ---
 

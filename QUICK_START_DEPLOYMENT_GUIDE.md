@@ -1,5 +1,7 @@
 # MEtiss Infrastructure - Quick Start & Deployment Guide
 
+⚠️ **SECURITY FIRST**: This guide uses placeholders like `[PROJECT_ID]`, `[API_KEY]`, etc. Never expose actual secrets in documentation, logs, or version control. Always store sensitive values in `terraform.tfvars` with proper `.gitignore` protection.
+
 ## Quick Navigation
 
 | Document | Purpose |
@@ -49,10 +51,12 @@ gcloud projects add-iam-policy-binding metiss-dev \
 
 # Create and download key
 gcloud iam service-accounts keys create ~/key-dev.json \
-  --iam-account=terraform-sa@metiss-dev.iam.gserviceaccount.com
+  --iam-account=terraform-sa@[YOUR_PROJECT_ID].iam.gserviceaccount.com
 
 # Set authentication
 export GOOGLE_APPLICATION_CREDENTIALS=~/key-dev.json
+
+⚠️ **IMPORTANT**: Keep ~/key-dev.json secure. Add to .gitignore. Never commit service account keys.
 ```
 
 ### 3. Terraform Initialization
@@ -90,6 +94,12 @@ Edit `terraform/Dev/terraform.tfvars`:
 # Add your service configuration
 my_service_name = "my-new-service"
 my_service_image = "api/my-service:latest"
+# Add other configuration variables here
+```
+
+⚠️ **Security Note**: Keep `terraform.tfvars` out of version control. Add to `.gitignore`:
+```bash
+echo "terraform.tfvars" >> .gitignore
 ```
 
 #### Step 2: Add Service Module
@@ -289,9 +299,11 @@ terraform apply
 #### Method 2: Direct gcloud Command
 ```bash
 gcloud run services update metiss-helio \
-  --set-env-vars=SOLAR_API_KEY=AIzaSy...,GEMINI_API_KEY=AIzaSy... \
+  --set-env-vars=SOLAR_API_KEY=[YOUR_API_KEY],GEMINI_API_KEY=[YOUR_API_KEY] \
   --region=us-west1
 ```
+
+⚠️ **Security Warning**: Never include actual API keys in command history or documentation. Use terraform.tfvars instead.
 
 #### Method 3: View Current Variables
 ```bash
@@ -469,7 +481,7 @@ gcloud run services add-iam-policy-binding metiss-helio \
 ### Issue 3: Database Connection Timeout
 ```bash
 # Test Cloud SQL connection
-gcloud sql connect metiss --user=metiss
+gcloud sql connect [INSTANCE_NAME] --user=[DB_USER]
 
 # Check Cloud SQL Auth proxy
 gcloud sql instances describe metiss | grep -E "status|currentDiskSize"
@@ -559,13 +571,16 @@ Before each deployment:
 - [ ] All code changes committed and pushed
 - [ ] Code reviewed and tested locally
 - [ ] Docker image builds successfully
-- [ ] Environment variables in `terraform.tfvars` are correct
+- [ ] Environment variables in `terraform.tfvars` are correct (KEEP SECRET)
+- [ ] `terraform.tfvars` is in `.gitignore`
+- [ ] No API keys or credentials in code/documentation
 - [ ] Database backups are current
 - [ ] Terraform plan reviewed and approved
 - [ ] No uncommitted Terraform changes
 - [ ] Sufficient GCP quota available
 - [ ] Team notified of deployment window
 - [ ] Rollback plan documented
+- [ ] ⚠️ **Security**: Verify no secrets will be exposed in deployment
 
 ---
 
@@ -578,13 +593,20 @@ Before each deployment:
 - **Helio Service Repo**: [GitHub URL]
 
 ### Debugging Steps
-1. Check logs: `gcloud logging read ...`
+1. Check logs: `gcloud logging read ...` (sanitize before sharing)
 2. Check service status: `gcloud run services describe ...`
-3. Check Terraform state: `terraform state show`
+3. Check Terraform state: `terraform state show` (contains secrets - keep private)
 4. Check GCP quotas and limits
 5. Verify IAM permissions
 6. Check firewall rules
-7. Review error messages carefully
+7. Review error messages carefully (remove secrets before sharing)
+
+⚠️ **Security**: When sharing debug information, always remove:
+- API keys and credentials
+- Database URLs and connection strings
+- Service account keys
+- Private keys or certificates
+- Internal IP addresses (if sensitive)
 
 ---
 
