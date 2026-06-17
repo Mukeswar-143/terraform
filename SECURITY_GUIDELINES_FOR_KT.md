@@ -21,14 +21,6 @@
 ❌ Personal access tokens
 ```
 
-### Examples of What NOT to Share:
-```
-❌ postgresql://metiss:Metiss@2025@43.225.21.76:5432/metiss
-❌ AIzaSyA2SuI5jq2VCun1GCq44_gGrBcFLup0iEs
-❌ -----BEGIN PRIVATE KEY-----MIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKg...
-❌ https://metiss-ai-gateway-6m7odqj.wl.gateway.dev
-```
-
 ---
 
 ## ✅ What CAN Be Shared
@@ -74,46 +66,12 @@
 
 ### Example - Safe vs Unsafe:
 
-**UNSAFE** ❌
-```yaml
-DATABASE_URL: postgresql://metiss:Metiss@2025@43.225.21.76:5432/metiss
-GOOGLE_API_KEY: AIzaSyA2SuI5jq2VCun1GCq44_gGrBcFLup0iEs
-FIREBASE_PROJECT_ID: metiss-dev
-```
-
 **SAFE** ✅
 ```yaml
 DATABASE_URL: postgresql://[DB_USER]:[DB_PASSWORD]@[DB_IP]:5432/[DB_NAME]
 GOOGLE_API_KEY: [YOUR_GOOGLE_API_KEY]
 FIREBASE_PROJECT_ID: [YOUR_FIREBASE_PROJECT_ID]
 ```
-
----
-
-## 📚 Documentation Guidelines
-
-### When Writing Examples:
-
-1. **Never include actual values**
-   - ❌ Wrong: `project_id= "metiss-dev"`
-   - ✅ Right: `project_id= "[YOUR_PROJECT_ID]"`
-
-2. **Replace URLs with placeholders**
-   - ❌ Wrong: `https://metiss-ai-gateway-6m7odqj.wl.gateway.dev`
-   - ✅ Right: `https://[API-GATEWAY-URL]`
-
-3. **Use descriptive placeholders**
-   - ❌ Wrong: `key = "xxx"`
-   - ✅ Right: `GOOGLE_API_KEY = "[YOUR_GOOGLE_API_KEY]"`
-
-4. **Add security warnings**
-   - Always mention where secrets should be stored
-   - Add ⚠️ indicators for sensitive operations
-   - Include `.gitignore` recommendations
-
-5. **Document the structure, not the values**
-   - ✅ Document: "Firebase requires PRIVATE_KEY field"
-   - ❌ Don't: Share actual private key
 
 ---
 
